@@ -22,5 +22,9 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\DeliBot.Service\DeliBot.Service.csproj" />
+    </ItemGroup>
 
 </Project>

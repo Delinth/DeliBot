@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using DeliBot.Data.GuessGame;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -10,39 +11,64 @@ namespace DeliBot.Console.Commands
 {
     public class GuessCommands : BaseCommandModule
     {
+        private readonly IGuessService _guessService;
+
+        public GuessCommands(IGuessService guessService)
+        {
+            _guessService = guessService;
+        }
 
         [Command("guess")]
         public async Task Guess(CommandContext ctx)
         {
-            string name = "Kim Kardashian";
-            bool guessed = false;
+
+            IGuessGame game = _guessService.NewGame();
+            bool gameWon = false;
+            DiscordUser winningMember = null;
 
             InteractivityExtension interactivity = ctx.Client.GetInteractivity();
 
-            await ctx.Message.RespondWithFileAsync("kim-k.jpg","Type your guess now!").ConfigureAwait(false);
-
-            await interactivity.WaitForMessageAsync(x =>
+            DiscordEmbed startGameEmbed = new DiscordEmbedBuilder()
             {
-                if (x.Channel != ctx.Message.Channel) return false;
-                    
-                if(x.Content.ToLower() == name.ToLower())
+                Title = "Guess who game",
+                Description = "Type your guess",
+                Author = new DiscordEmbedBuilder.EmbedAuthor()
                 {
-                    guessed = true;
-                    return true;
-                }
-                x.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":x:")).Wait();
-                return false;
-            });
+                    Name = ctx.Message.Author.Username,
+                    IconUrl = ctx.Message.Author.AvatarUrl
+                },
+                ImageUrl = game.GetCropPic()
+            }.Build();
 
-            if (guessed)
+            await ctx.RespondAsync(embed: startGameEmbed).ConfigureAwait(false);
+
+            await interactivity.WaitForMessageAsync(message =>
             {
-                await ctx.Message.RespondAsync("You guessed it").ConfigureAwait(false);
-                return;
-            }
-            else
+                if (message.Channel != ctx.Message.Channel) return false;
+
+                bool correctGuess = _guessService.TakeGuess(game, message.Content);
+
+                if (!correctGuess)
+                {
+                    message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":x:"));
+                    return false;
+                }
+                
+                gameWon = true;
+                winningMember = message.Author;
+                return true;
+
+            }).ConfigureAwait(false);
+            
+            DiscordEmbed endGameEmbed = new DiscordEmbedBuilder()
             {
-                await ctx.Message.RespondAsync("Bummer, you didn't guess it!");
-            }
+                Title = gameWon ? $"Game won by {winningMember.Username}" : "Guess who - ended",
+                Description = "It was " + _guessService.GetFullName(game),
+                ImageUrl = _guessService.GetFullPic(game),
+                Color = gameWon ? DiscordColor.Green : DiscordColor.Red
+            }.Build();
+            
+            await ctx.RespondAsync(embed: endGameEmbed).ConfigureAwait(false);
         }
     }
 }

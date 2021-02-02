@@ -1,4 +1,6 @@
 ﻿using System;
+using DeliBot.Data.GuessGame;
+using DeliBot.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +24,7 @@ namespace DeliBot.Console
                 .ConfigureServices((context, services) =>
                 {
                     services.AddTransient<Bot>();
+                    services.AddTransient<IGuessService, GuessService>();
                 });
     }
 }
