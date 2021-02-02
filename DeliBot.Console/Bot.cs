@@ -4,10 +4,10 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
-using GuessWhoBot.Console.Commands;
+using DeliBot.Console.Commands;
 using Microsoft.Extensions.Configuration;
 
-namespace GuessWhoBot.Console
+namespace DeliBot.Console
 {
     public class Bot
     {
@@ -47,7 +47,7 @@ namespace GuessWhoBot.Console
 
             Commands = discord.UseCommandsNext(commandsConfig);
             
-            Commands.RegisterCommands<FunCommands>();
+            Commands.RegisterCommands<GuessCommands>();
 
             await discord.ConnectAsync();
             await Task.Delay(-1);

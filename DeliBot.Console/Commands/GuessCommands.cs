@@ -6,14 +6,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 
-namespace GuessWhoBot.Console.Commands
+namespace DeliBot.Console.Commands
 {
-    public class FunCommands : BaseCommandModule
+    public class GuessCommands : BaseCommandModule
     {
-        [Command("ping")]
-        public async Task Ping(CommandContext ctx) => 
-            await ctx.Message.RespondAsync("Pong van c#").ConfigureAwait(false);
-        
+
         [Command("guess")]
         public async Task Guess(CommandContext ctx)
         {
