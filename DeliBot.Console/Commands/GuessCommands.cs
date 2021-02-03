@@ -1,6 +1,6 @@
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DeliBot.Data.GuessGame;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -37,14 +37,17 @@ namespace DeliBot.Console.Commands
                     Name = ctx.Message.Author.Username,
                     IconUrl = ctx.Message.Author.AvatarUrl
                 },
-                ImageUrl = game.GetCropPic()
+                ImageUrl = _guessService.GetCropPic(game)
             }.Build();
 
             await ctx.RespondAsync(embed: startGameEmbed).ConfigureAwait(false);
 
+            Regex rx = new Regex(@"^[A-Za-z]");
+
             await interactivity.WaitForMessageAsync(message =>
             {
-                if (message.Channel != ctx.Message.Channel) return false;
+                if (message.Channel != ctx.Message.Channel || message.Author.IsBot
+                || !rx.IsMatch(message.Content)) return false;
 
                 bool correctGuess = _guessService.TakeGuess(game, message.Content);
 
@@ -63,7 +66,7 @@ namespace DeliBot.Console.Commands
             DiscordEmbed endGameEmbed = new DiscordEmbedBuilder()
             {
                 Title = gameWon ? $"Game won by {winningMember.Username}" : "Guess who - ended",
-                Description = "It was " + _guessService.GetFullName(game),
+                Description = "It was: " + _guessService.GetFullName(game),
                 ImageUrl = _guessService.GetFullPic(game),
                 Color = gameWon ? DiscordColor.Green : DiscordColor.Red
             }.Build();
