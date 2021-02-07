@@ -1,15 +1,32 @@
+using System;
+using System.Linq;
+using DeliBot.Data;
 using DeliBot.Data.GuessGame;
+using DeliBot.Data.Models.GuessGame;
 
 namespace DeliBot.Service
 {
     public class GuessService : IGuessService
     {
+        private readonly DeliBotContext _context;
+
+        public GuessService(DeliBotContext context)
+        {
+            _context = context;
+        }
 
         public IGuessGame NewGame()
         {
-            Celeb celeb = new Celeb() {name = "Kim Kardashian"};
+            Random random = new Random();
+            int toSkip = random.Next(0, _context.GuessOptions.Count());
 
-            return new GuessGame(celeb.name, "https://cdn5-thumbs.motherlessmedia.com/thumbs/63418A0-zoom.jpg?from_helper", "https://thumb-p7.xhcdn.com/a/e_dnTd59fCYdvYA6l0t-Og/000/101/739/747_1000.jpg");
+            GuessOption guess = _context.GuessOptions.Skip(toSkip).Take(1).First();
+
+            int toSkipPics = random.Next(0, guess.GuessPictures.Count());
+
+            GuessPicture guessPic = guess.GuessPictures.Skip(toSkipPics).Take(1).First();
+
+            return new GuessGame($"{guess.Person.FirstName} {guess.Person.LastName}", guessPic.CropPicUrl, guessPic.FullPicUrl);
         }
 
         public bool TakeGuess(IGuessGame game, string nameGuess)
@@ -31,10 +48,5 @@ namespace DeliBot.Service
         {
             return game.GetFullPic();
         }
-    }
-
-    public class Celeb
-    {
-        public string name;
     }
 }
