@@ -19,6 +19,7 @@ namespace DeliBot.Console.Commands
         }
 
         [Command("guess")]
+        [Description("Play a round of guess the celeb")]
         public async Task Guess(CommandContext ctx)
         {
 
