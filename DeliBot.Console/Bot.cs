@@ -48,6 +48,7 @@ namespace DeliBot.Console
             Commands = discord.UseCommandsNext(commandsConfig);
             
             Commands.RegisterCommands<GuessCommands>();
+            Commands.RegisterCommands<Utils>();
 
             await discord.ConnectAsync();
             await Task.Delay(-1);
