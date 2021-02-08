@@ -34,7 +34,7 @@ namespace DeliBot.Console
 
             CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration()
             {
-                StringPrefixes = new string[] {"$"},
+                StringPrefixes = new string[] {_configuration.GetValue<string>("Discord:Prefix")},
                 EnableDms = false,
                 EnableMentionPrefix = true,
                 Services = _services
@@ -48,6 +48,7 @@ namespace DeliBot.Console
             Commands = discord.UseCommandsNext(commandsConfig);
             
             Commands.RegisterCommands<GuessCommands>();
+            Commands.RegisterCommands<Utils>();
 
             await discord.ConnectAsync();
             await Task.Delay(-1);
